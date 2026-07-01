@@ -3,10 +3,16 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
 
 // Backblaze B2 is S3-compatible. These env vars configure the B2 endpoint.
-const B2_ENDPOINT = process.env.B2_ENDPOINT || 'https://s3.us-west-004.backblazeb2.com';
+const B2_ENDPOINT = process.env.B2_ENDPOINT || 'https://s3.us-east-005.backblazeb2.com';
 const B2_KEY_ID = process.env.B2_KEY_ID || 'demo-key-id';
 const B2_APPLICATION_KEY = process.env.B2_APPLICATION_KEY || 'demo-application-key';
 const B2_BUCKET = process.env.B2_BUCKET || 'cvmg-hackathon';
+
+// Extract region from endpoint for S3 client
+function getRegionFromEndpoint(endpoint: string): string {
+  const match = endpoint.match(/s3\.([^.]+)\.backblazeb2\.com/);
+  return match ? match[1] : 'us-east-005';
+}
 
 let s3Client: S3Client | null = null;
 
@@ -14,7 +20,7 @@ function getS3Client(): S3Client {
   if (!s3Client) {
     s3Client = new S3Client({
       endpoint: B2_ENDPOINT,
-      region: 'us-west-004',
+      region: getRegionFromEndpoint(B2_ENDPOINT),
       credentials: {
         accessKeyId: B2_KEY_ID,
         secretAccessKey: B2_APPLICATION_KEY,
