@@ -1,0 +1,6 @@
+# Internal scripts
+.zscripts/
+
+# Database
+db/*.db
+db/*.db-journal

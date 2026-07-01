@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model GenerationJob {
+  id          String   @id @default(cuid())
+  prompt      String
+  status      String   @default("PENDING") // PENDING, GENERATING, VALIDATING, ADVERSARIAL_CHECK, SELECTING, STORING, COMPLETED, FAILED
+  mediaType   String   @default("image")  // image, video, audio
+  modelsUsed  String   // JSON array of model names
+  winnerId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  candidates  GenerationCandidate[]
+  events      ConsensusEvent[]
+  assets      B2Asset[]
+
+  winner      GenerationCandidate? @relation("WinnerCandidate", fields: [winnerId], references: [id])
+}
+
+model GenerationCandidate {
+  id            String   @id @default(cuid())
+  jobId         String
+  modelName     String
+  modelVersion  String   @default("1.0")
+  status        String   @default("PENDING") // PENDING, GENERATING, COMPLETED, FAILED, REJECTED, SELECTED
+  score         Float?
+  qualityScore  Float?
+  diversityScore Float?
+  adversarialScore Float?
+  b2Key         String?
+  b2Url         String?
+  thumbnailKey  String?
+  metadata      String   @default("{}") // JSON
+  error         String?
+  latencyMs     Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  job          GenerationJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  wonJobs      GenerationJob[] @relation("WinnerCandidate")
+  events       ConsensusEvent[]
+  assets       B2Asset[]
+}
+
+model ConsensusEvent {
+  id           String   @id @default(cuid())
+  jobId        String
+  type         String   // STATE_TRANSITION, CANDIDATE_GENERATED, VALIDATION_RESULT, ADVERSARIAL_RESULT, WINNER_SELECTED, ERROR
+  fromState    String?
+  toState      String?
+  candidateId  String?
+  details      String   @default("{}") // JSON
+  createdAt    DateTime @default(now())
+
+  job          GenerationJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidate    GenerationCandidate? @relation(fields: [candidateId], references: [id], onDelete: SetNull)
+}
+
+model B2Asset {
+  id          String   @id @default(cuid())
+  jobId       String?
+  candidateId String?
+  b2Key       String   @unique
+  fileName    String
+  contentType String
+  size        Int      @default(0)
+  checksum    String?
+  isWinner    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  job         GenerationJob? @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  candidate   GenerationCandidate? @relation(fields: [candidateId], references: [id], onDelete: SetNull)
+}
