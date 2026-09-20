@@ -16,11 +16,13 @@ Our solution: **generate with multiple models simultaneously, cross-validate the
 PENDING → GENERATING → VALIDATING → ADVERSARIAL_CHECK → SELECTING → STORING → COMPLETED
 ```
 
+The transition machinery is real — `STATE_TRANSITIONS` and its `isValidTransition` validator live in `src/lib/consensus.ts`; the three scoring stages that feed selection are simulated heuristics (below).
+
 1. **Multi-Model Generation** — Multiple AI models (FLUX, SDXL, Playground, Ideogram) generate from your prompt in parallel via Genblaze SDK orchestration
-2. **Quality Validation** — Each candidate scored on visual quality metrics
-3. **Diversity Scoring** — Measures how unique each candidate is from the others
-4. **Adversarial Quality Check** — Detects AI artifacts, distortions, and quality issues
-5. **Winner Selection** — Weighted consensus (50% quality + 30% diversity + 20% adversarial robustness) picks the best result
+2. **Quality Validation** — Each candidate scored by a simulated heuristic (`computeQualityScore` in `src/lib/consensus.ts` — hash-seeded placeholder, not a real visual-quality model)
+3. **Diversity Scoring** — Simulated feature comparison (`computeDiversityScore` in `src/lib/consensus.ts` — same hash-based placeholder approach)
+4. **Adversarial Quality Check** — Simulated robustness score (`computeAdversarialScore` in `src/lib/consensus.ts`) rather than a real artifact detector
+5. **Winner Selection** — Weighted consensus (50% quality + 30% diversity + 20% adversarial robustness — real arithmetic over the simulated scores) picks the best result
 6. **B2 Storage** — All candidates + the consensus winner stored on Backblaze B2 with full provenance
 
 ## Tech Stack
