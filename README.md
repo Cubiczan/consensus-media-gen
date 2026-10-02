@@ -4,6 +4,16 @@
 
 Built for the **[Backblaze Generative Media Hackathon](https://hackathon.backblaze.com)** (Aug 3, 2026).
 
+<!-- product-screenshots:start -->
+## Product screenshots
+
+Studio interface for configuring a generation prompt, model selections, consensus presets, and Backblaze B2 storage.
+
+![consensus-media-gen product interface](docs/screenshots/product-overview.png)
+
+Captured from the [live UI](https://consensus-media-gen1.vercel.app) on October 2, 2026. No payment, generation, or other action was submitted to create this capture.
+<!-- product-screenshots:end -->
+
 ## How It Works
 
 CVMG solves a fundamental problem with AI-generated media: **single-model outputs are unreliable**. Different models excel at different aspects — one may nail composition but fail at text rendering, while another produces vibrant colors but poor anatomy.
